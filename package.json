@@ -1,6 +1,6 @@
 {
   "name": "trilha-analytics",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Dashboard de frequência escolar em React + Node, com leitura de planilhas arquivadas em pasta.",
