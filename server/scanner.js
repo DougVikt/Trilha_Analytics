@@ -12,6 +12,11 @@ import * as XLSX from 'xlsx';
  *   "Interativo".
  * - Ignora linhas com zero matriculados ou sem curso/disciplina/instrutor.
  * - Calcula frequência e índice de faltas sobre os matriculados.
+ *
+ * Alteração desta versão:
+ * - Ignora linhas que contenham termos de totalização (ex.: TOTAL, SUBTOTAL,
+ *   SOMATÓRIA, TOTALIZADOR, GRAND TOTAL), evitando somar o total dos dados
+ *   duas vezes.
  */
 
 export class ScanError extends Error {
@@ -47,7 +52,8 @@ export function norm(value) {
     .normalize('NFD')
     .replace(/\p{M}+/gu, '')
     .replace(/[ºª°øæœßðþł]/g, (char) => TRANSLITERATION[char] ?? char)
-    .replace(/[^a-z0-9]+/g, ' ');
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 // Equivalente ao is_numeric() do PHP para os valores que aparecem nas planilhas.
@@ -72,6 +78,20 @@ export function findCol(headers, needles, fallback = null) {
     }
   }
   return fallback;
+}
+
+/**
+ * Detecta linhas de totalização (total, subtotal, somatória etc.).
+ * A comparação usa norm() e busca palavras inteiras para evitar falsos
+ * positivos em nomes como "Resumo" ou "Suma".
+ */
+function isTotalRow(row) {
+  const TOTAL_PATTERN =
+    /\b(total|subtotal|sub-total|grand total|total geral|totaliza|totalizado|totalizacao|totalizador|soma|somatoria|somatorio|sum|overall|tot)\b/;
+  return row.some((cell) => {
+    const text = norm(cell);
+    return text ? TOTAL_PATTERN.test(text) : false;
+  });
 }
 
 function sheetToGrid(sheet) {
@@ -131,6 +151,10 @@ export function scanWorkbook(buffer) {
 
       for (let rowIndex = headerIndex + 1; rowIndex < nextHeader; rowIndex += 1) {
         const row = grid[rowIndex] ?? [];
+
+        // Ignora linhas de totalização (ex.: TOTAL GERAL).
+        if (isTotalRow(row)) continue;
+
         const enrolled = numberValue(row[enrolledCol] ?? 0);
         const present = numberValue(row[presentCol] ?? 0);
         const course = clean(row[courseCol] ?? '');
