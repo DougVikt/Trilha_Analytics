@@ -1,0 +1,28 @@
+PASTA DE PLANILHAS ARQUIVADAS
+=============================
+
+Esta pasta é usada pelo sistema na aba "Planilhas arquivadas" do menu lateral.
+
+- Coloque aqui os arquivos .xls e .xlsx que devem aparecer no sistema.
+- O arquivo de exemplo pode ser substituído ou apagado.
+- Ao abrir a aba "Planilhas arquivadas", clique em "Atualizar lista" se
+  tiver adicionado arquivos com o sistema já aberto.
+- Ao escolher uma planilha, o sistema executa exatamente o mesmo
+  escaneamento feito no upload de um arquivo.
+
+PARA USAR OUTRA PASTA
+---------------------
+Defina a variável de ambiente PLANILHAS_DIR antes de iniciar o servidor:
+
+   Windows (Prompt de Comando):
+      set PLANILHAS_DIR=C:\Planilhas\Frequencia
+      npm run dev
+
+   PowerShell:
+      $env:PLANILHAS_DIR="C:\Planilhas\Frequencia"
+      npm run dev
+
+Também é possível editar o caminho em server/config.js.
+
+Planilhas com dados reais não entram no repositório (veja o .gitignore).
+Apenas o arquivo de demonstração fica versionado.
